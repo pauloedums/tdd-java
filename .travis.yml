@@ -23,4 +23,4 @@ install:
 
 script:
   # Run GraalVM Native Image compilation
-  - mvn package -Pnative -Dnative-image.docker-build=true
+  - mvn package -Dnative-image.docker-build=true
