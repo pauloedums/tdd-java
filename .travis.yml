@@ -1,18 +1,34 @@
-sudo: false
-language: java
+language: minimal
 
-cache:
-  directories:
-    - $HOME/.m2
+install:
+  # Install GraalVM with SDKMAN
+  - curl -s "https://get.sdkman.io" | bash
+  - source "$HOME/.sdkman/bin/sdkman-init.sh"
+  - sdk install java 20.0.0.r11-grl
 
-before_install:
-- wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+  # Check if GraalVM was installed successfully
+  - java -version
 
-matrix:
-  include:
-  # GraalVM
-    - env: JDK='GraalVM 19'
-      install: . ./install-jdk.sh --url "https://github.com/oracle/graal/releases/download/vm-19.2.0/graalvm-ce-linux-amd64-19.2.0.tar.gz"
+  # Install Maven, that uses GraalVM for later builds
+  - sdk install maven
+
+  # Show Maven using GraalVM JDK
+  - mvn --version
+
+  # Install GraalVM Native Image
+  - gu install native-image
+
+  # Check if Native Image was installed properly
+  - native-image --version
 
 script:
-  - mvn package -Pnative -Dnative-image.docker-build=true
+  # Run GraalVM Native Image compilation
+  - native-image \
+    --no-server \
+    --no-fallback \
+    -H:+TraceClassInitialization \
+    -H:Name=yourArtifactNameHere \
+    -H:+ReportExceptionStackTraces \
+    -DremoveUnusedAutoconfig=true \
+    -DremoveYamlSupport=true \
+    -cp yourClassPathHere yourMainClassHere;
