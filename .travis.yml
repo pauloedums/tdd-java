@@ -24,3 +24,12 @@ install:
 script:
   # Run GraalVM Native Image compilation
   - mvn package -Dnative-image.docker-build=true
+
+# Definir o Deploy no Heroku
+deploy:
+  provider: heroku
+  api_key: $HEROKU_API_KEY
+  edge: true 
+  app: tdd-java
+  on:
+      branch: main
